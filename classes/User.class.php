@@ -13,16 +13,16 @@ class User {
     
     public function add() 
     {
-        if(!$this->validateInput(array('login', 'password'), $GLOBALS['_POST'])){
+        if(!$this->validateInput(array('login', 'password'), $GLOBALS['_POST']) || !$this->validatePhone($_POST['login']) ){
             return FALSE;
         }
         
         $login = $_POST['login'];
         $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
         
-        $name = $_POST['name'] ?? '0';
-        $surname = $_POST['surname'] ?? '0';
-        $email = $_POST['email'] ?? '0';
+        $name = $_POST['name'] ?? '';
+        $surname = $_POST['surname'] ?? '';
+        $email = $_POST['email'] ?? '';
         $permission = $_POST['permission'] ?? 0;
 			
         $SQL = "SELECT * FROM users WHERE login=?";
@@ -43,7 +43,7 @@ class User {
     
     public function check()
     {
-        if(!$this->validateInput(array('login', 'password'), $GLOBALS['_GET'])){
+        if(!$this->validateInput(array('login', 'password'), $GLOBALS['_GET']) || !$this->validatePhone($_GET['login']) ){
             return FALSE;
         }
         
@@ -112,6 +112,10 @@ class User {
         }
         
         if(isset($_POST['login'])){
+            
+            if(!$this->validatePhone($_POST['login']) ){
+                return FALSE;
+            }
     		
             $SQL = "SELECT * FROM users WHERE login=?";
             $checkLogin = $this->DB->loadData($SQL, array($_POST['login']));
@@ -138,6 +142,16 @@ class User {
 						
         $this->result = array('description' => "User updated successfully");
         return TRUE;	
+    }
+    
+    private function validatePhone($phone)
+    {
+        if(preg_match('/^\+?[0-9]+$/', $phone)){
+            return TRUE;
+        } else {
+            $this->lastError = array('description' => "Invalid phone number"); 
+            return FALSE;
+        }
     }
     
     private function validateInput($requiredParams, $inputParams)
