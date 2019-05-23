@@ -26,18 +26,19 @@ SET time_zone = "+00:00";
 
 CREATE TABLE `permissions` (
   `id` int(11) NOT NULL,
-  `description` varchar(50) NOT NULL
+  `description` varchar(50) NOT NULL,
+  `accessNum` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
 -- Дамп данных таблицы `permissions`
 --
 
-INSERT INTO `permissions` (`id`, `description`) VALUES
-(1, 'чтение раздела A'),
-(2, 'редактирование раздела A'),
-(3, 'чтение раздела B'),
-(4, 'редактирование раздела B');
+INSERT INTO `permissions` (`id`, `description`, `accessNum`) VALUES
+(1, 'чтение раздела A', 1),
+(2, 'редактирование раздела A', 2),
+(3, 'чтение раздела B', 4),
+(4, 'редактирование раздела B', 8);
 
 -- --------------------------------------------------------
 
