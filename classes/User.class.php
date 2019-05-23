@@ -11,19 +11,21 @@ class User {
         $this->DB = Database::getInstance();
     }
     
-    public function add() 
+    public function add($method = '_POST') 
     {
-        if(!$this->validateInput(array('login', 'password'), $GLOBALS['_POST']) || !$this->validatePhone($_POST['login']) ){
+        $inputParams = $GLOBALS[$method];
+        
+        if(!$this->validateInput(array('login', 'password'), $inputParams) || !$this->validatePhone($inputParams['login']) ){
             return FALSE;
         }
         
-        $login = $_POST['login'];
-        $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
+        $login = $inputParams['login'];
+        $password = password_hash($inputParams['password'], PASSWORD_DEFAULT);
         
-        $name = $_POST['name'] ?? '';
-        $surname = $_POST['surname'] ?? '';
-        $email = $_POST['email'] ?? '';
-        $permission = $_POST['permission'] ?? 0;
+        $name = $inputParams['name'] ?? '';
+        $surname = $inputParams['surname'] ?? '';
+        $email = $inputParams['email'] ?? '';
+        $permission = $inputParams['permission'] ?? 0;
 			
         $SQL = "SELECT * FROM users WHERE login=?";
         $request = $this->DB->loadData($SQL, array($login));
@@ -41,14 +43,16 @@ class User {
         
     } 
     
-    public function check()
+    public function check($method = '_GET')
     {
-        if(!$this->validateInput(array('login', 'password'), $GLOBALS['_GET']) || !$this->validatePhone($_GET['login']) ){
+        $inputParams = $GLOBALS[$method];
+        
+        if(!$this->validateInput(array('login', 'password'), $inputParams) || !$this->validatePhone($inputParams['login']) ){
             return FALSE;
         }
         
-        $login = $_GET['login'];
-        $password = $_GET['password'];
+        $login = $inputParams['login'];
+        $password = $inputParams['password'];
 		
         $SQL = "SELECT `id`, `password` FROM users WHERE login=?";
         $request = $this->DB->loadData($SQL, array($login));
@@ -67,13 +71,15 @@ class User {
         }
     }
     
-    public function info()
+    public function info($method = '_GET')
     {
-        if(!$this->validateInput(array('id'), $GLOBALS['_GET'])){
+        $inputParams = $GLOBALS[$method];
+        
+        if(!$this->validateInput(array('id'), $inputParams)){
             return FALSE;
         }
         
-        $id = $_GET['id'];
+        $id = $inputParams['id'];
         
         $SQL = "SELECT `id` as `user_id`, `login`, `permission`, `email`, `name`, `surname` FROM users WHERE id = ?";
         $request = $this->DB->loadData($SQL, array($id));
@@ -89,13 +95,15 @@ class User {
         return TRUE;
     }
     
-    public function update()
+    public function update($method = '_POST')
     {
-        if(!$this->validateInput(array('id'), $GLOBALS['_POST'])){
+        $inputParams = $GLOBALS[$method];
+        
+        if(!$this->validateInput(array('id'), $inputParams)){
             return FALSE;
         }
         
-        $id = $_POST['id'];
+        $id = $inputParams['id'];
 		
         $SQL = "SELECT * FROM users WHERE id = ?";
         $request = $this->DB->loadData($SQL, array($id));
@@ -105,37 +113,37 @@ class User {
             return FALSE;
         }
         
-        if(isset($_POST['password'])){
-            $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
+        if(isset($inputParams['password'])){
+            $password = password_hash($inputParams['password'], PASSWORD_DEFAULT);
         } else {
             $password = $request['password'];
         }
         
-        if(isset($_POST['login'])){
+        if(isset($inputParams['login'])){
             
-            if(!$this->validatePhone($_POST['login']) ){
+            if(!$this->validatePhone($inputParams['login']) ){
                 return FALSE;
             }
     		
             $SQL = "SELECT * FROM users WHERE login=?";
-            $checkLogin = $this->DB->loadData($SQL, array($_POST['login']));
+            $checkLogin = $this->DB->loadData($SQL, array($inputParams['login']));
     
             if($checkLogin['count'] != 0){
                 $this->lastError = array('description' => "Login already exist");
                 return FALSE;
             }
     		
-            $login = $_POST['login'];
+            $login = $inputParams['login'];
     		
         } else {
             $login = $request['login'];
         }
         
         $userID = $request['id'];
-        $name = $_POST['name'] ?? $request['name'];
-        $surname = $_POST['surname'] ?? $request['surname'];
-        $email = $_POST['email'] ?? $request['email'];
-        $permission = $_POST['permission'] ?? $request['permission'];
+        $name = $inputParams['name'] ?? $request['name'];
+        $surname = $inputParams['surname'] ?? $request['surname'];
+        $email = $inputParams['email'] ?? $request['email'];
+        $permission = $inputParams['permission'] ?? $request['permission'];
 		
         $SQL = "UPDATE users SET `login`=?,`password`=?,`permission`=?,`email`=?,`name`=?,`surname`=? WHERE id = ?";
         $request = $this->DB->loadData($SQL, array($login, $password, $permission, $email, $name, $surname, $userID));
